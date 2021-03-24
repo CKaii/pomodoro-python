@@ -8,14 +8,24 @@ GREEN = "#9bdeac"
 YELLOW = "#f7f5dd"
 FONT_NAME = "Courier"
 WORK_MIN = 1
-SHORT_BREAK_MIN = 5
+SHORT_BREAK_MIN = 1
 LONG_BREAK_MIN = 20
 reps = 0
+timer = None
 
 
 # ---------------------------- TIMER RESET ------------------------------- #
 
-# ---------------------------- TIMER MECHANISM ------------------------------- # 
+def reset_timer():
+    window.after_cancel(timer)
+    timer_label.config(text='Timer')
+    canvas.itemconfig(timer_text, text='00:00')
+    check_mark.config(text='')
+    global reps
+    reps = 0
+
+
+# ---------------------------- TIMER MECHANISM ------------------------------- #
 
 def start_timer():
     global reps
@@ -45,9 +55,15 @@ def count_down(count):
 
     canvas.itemconfig(timer_text, text=f'{count_min}:{count_second}')
     if count > 0:
-        window.after(1000, count_down, count - 1)
+        global timer
+        timer = window.after(1000, count_down, count - 1)
     else:
         start_timer()
+        marks = ''
+        work_sessions = math.floor(reps / 2)
+        for session in range(work_sessions):
+            marks += '✓'
+        check_mark.config(text=marks)
 
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -58,14 +74,14 @@ window.config(padx=100, pady=50, bg=YELLOW)
 timer_label = Label(text='Timer', fg=GREEN, bg=YELLOW, font=(FONT_NAME, 36, 'bold'))
 timer_label.grid(column=2, row=0)
 
-check_mark = Label(text='✓', fg=GREEN, bg=YELLOW, font=(FONT_NAME, 12, 'bold'))
-check_mark.grid(column=2, row=4)
-
 start_button = Button(text='Start', command=start_timer)
 start_button.grid(column=1, row=3)
 
-reset_button = Button(text='Reset')
+reset_button = Button(text='Reset', command=reset_timer)
 reset_button.grid(column=3, row=3)
+
+check_mark = Label(fg=GREEN, bg=YELLOW, font=(FONT_NAME, 12, 'bold'))
+check_mark.grid(column=2, row=4)
 
 canvas = Canvas(width=200, height=224, bg=YELLOW, highlightthickness=0)
 tomato_img = PhotoImage(file='tomato.png')
